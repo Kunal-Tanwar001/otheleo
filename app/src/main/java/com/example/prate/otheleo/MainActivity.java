@@ -2,6 +2,7 @@
 
 package com.example.prate.otheleo;
 
+import android.annotation.SuppressLint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,88 +11,150 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements  View.OnClickListener {
- LinearLayout rootLayout;
-    public static final int row=8;
-    public static final int col=8;
-    ArrayList<LinearLayout> rows;
-    Mbutton[][] board;
-    boolean currentstatus;
-     int current_playerW=0;
-    int current_playerB=1;
-    int currentopposite;
-    int no_player=-1;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+
+    LinearLayout rootLayout;
+    Mbutton board[][];
+    public static int currentplayer;
+    public static int oppositeplayer;
+    public final static int player_white = 1;
+    public final static int player_black = 2;
+    public final static int player_no = -1;
+    ArrayList<LinearLayout> row_layout;
+    int row = 8;
+    int col = 8;
+    boolean current_status;
     int x[]={-1,-1,-1,0,1,1,1,0};
     int y[]={-1,0,1,1,1,0,-1,-1};
-    int currentplayer;
 
+    @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        rootLayout=findViewById(R.id.root);
+        rootLayout = findViewById(R.id.root);
         setupBoard();
+        board[3][3].setValue(player_white);
+        board[4][4].setValue(player_white);
+        board[3][3].setbutton();
+        board[4][4].setbutton();
+
+        board[3][4].setValue(player_black);
+        board[3][4].setbutton();
+
+        board[4][3].setValue(player_black);
+        board[4][3].setbutton();
+
+
     }
+
+    @SuppressLint("NewApi")
     public void setupBoard() {
-         rootLayout.removeAllViews();
-         rows=new ArrayList<>();
-         currentstatus=true;
-         currentplayer=current_playerB;
-         currentopposite=current_playerW
-        for(int i=0;i<row;i++){
-            LinearLayout linearLayout=new LinearLayout(this);
+        row_layout = new ArrayList<>();
+        rootLayout.removeAllViews();
+        current_status = true;
+        for (int i = 0; i < row; i++) {
+            LinearLayout linearLayout = new LinearLayout(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
             linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1);
             linearLayout.setLayoutParams(params);
             rootLayout.addView(linearLayout);
-            rows.add(linearLayout);
+            row_layout.add(linearLayout);
+
 
         }
-        for(int i=0;i<row;i++){
-            for(int j=0;j<col;j++){
-                Mbutton button =new Mbutton(MainActivity.this);
-                LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,1);
-                button.setLayoutParams(params);
-                LinearLayout extralayout=rows.get(i);
-                extralayout.addView(button);
-                board[i][j]=button;
-                button.revealed=false;
-                button.i=i;
-                button.j=j;
 
-                button.setValue(no_player);
+        board = new Mbutton[row][col];
+        currentplayer = player_white;
+        oppositeplayer = player_white;
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                Mbutton button = new Mbutton(this);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
+                button.setLayoutParams(params);
+                button.i = i;
+                button.j = j;
+                button.revealed = false;
+                button.setValue(player_no);
+                board[i][j] = button;
+                LinearLayout xc = row_layout.get(i);
+                xc.addView(button);
+                button.setBackground(getDrawable(R.drawable.no_button_player));
                 button.setOnClickListener(this);
 
             }
         }
-           setuppeices();
+
 
     }
-
 
     @Override
     public void onClick(View view) {
-        Mbutton button=(Mbutton)view;
-        if(currentstatus ){
-          checking checked=checkneighbour(button,button.i,button.j,int currenplayer);
-        }
-    }
-    public void getneighbour(int i,int j,Mbutton button,){
+        if (current_status) {
+            Mbutton button = (Mbutton) view;
+            if (checkneighbour(button)) {
+                button.setbutton();
+                button.setEnabled(false);
 
-    }
-    public checking  checkneighbour(Mbutton button,int i,int j,int current){
+                checkAtend(button.i,button.j);
+                toggle();
+
+                }
+            }
+        }
+
+  public void toggle(){
+        if(currentplayer==player_white){
+            currentplayer=player_black;
+            oppositeplayer=player_white;
+        }
+        else{
+            currentplayer=player_white;
+            oppositeplayer=player_black;
+        }
+  }
+
+    public boolean checkneighbour(Mbutton button) {
+        int xi,yi;
         for(int k=0;k<8;k++){
-            int q=i+x[k];
-            int w=j+y[k];
-            if(q>=0 && q<row && w>=0 && w<col){
-                if(!board[q][w].revealed && board[q][w].getValue()==current) {
+            xi=button.i +x[k];
+            yi=button.j+y[k];
+            if(xi>=0 && xi<row && yi>=0 && yi<col && board[xi][yi].getValue()==oppositeplayer){
+                return true;
+            }
+        }
+        return false;
+    }
+    public void checkAtend(int i,int j){
+        int xi,yj;
+        for(int k=0;k<8;k++){
+            xi=i+x[k];
+            yj=j+y[k];
+            if(xi>=0 && yj>=0 && xi<row && yj<col && board[xi][yj].getValue()==oppositeplayer ) {
+                if (recursiongotoend(xi, yj, k)) {
+                    board[xi][yj].setValue(currentplayer);
+                    board[xi][yj].setbutton();
 
                 }
             }
         }
 
     }
-    public void setuppeices(){
+    public boolean recursiongotoend(int i,int j,int k ){
+        if(i<=0 && j<=0 && i>row &&j>col && board[i][j].getValue()==player_no) {
+            return false;
+        }
+        if(board[i][j].getValue()==currentplayer ){
+            board[i-x[k]][j-y[k]].setValue(currentplayer);
+            board[i-x[k]][j-y[k]].setbutton();
 
+            return true;
+        }
+
+        return recursiongotoend(i+x[k],j+y[k],k);
     }
+
 }
+
+
