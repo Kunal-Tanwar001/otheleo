@@ -145,9 +145,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(i<=0 && j<=0 && i>row &&j>col && board[i][j].getValue()==player_no) {
             return false;
         }
-        if(board[i][j].getValue()==currentplayer ){
-            board[i-x[k]][j-y[k]].setValue(currentplayer);
-            board[i-x[k]][j-y[k]].setbutton();
+        if(board[i][j].getValue()==currentplayer ) {
+            board[i - x[k]][j - y[k]].setValue(currentplayer);
+            board[i - x[k]][j - y[k]].setbutton();
 
             return true;
         }
