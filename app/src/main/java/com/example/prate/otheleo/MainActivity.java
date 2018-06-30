@@ -34,7 +34,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rootLayout = findViewById(R.id.root);
+
         setupBoard();
+
         board[3][3].setValue(player_white);
         board[4][4].setValue(player_white);
         board[3][3].setbutton();
@@ -51,9 +53,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @SuppressLint("NewApi")
     public void setupBoard() {
-        row_layout = new ArrayList<>();
         rootLayout.removeAllViews();
+        row_layout = new ArrayList<>();
+
         current_status = true;
+        currentplayer = player_white;
+        oppositeplayer = player_black;
         for (int i = 0; i < row; i++) {
             LinearLayout linearLayout = new LinearLayout(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
@@ -66,8 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         board = new Mbutton[row][col];
-        currentplayer = player_white;
-        oppositeplayer = player_white;
+
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 Mbutton button = new Mbutton(this);
@@ -75,12 +79,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 button.setLayoutParams(params);
                 button.i = i;
                 button.j = j;
-                button.revealed = false;
+
                 button.setValue(player_no);
                 board[i][j] = button;
                 LinearLayout xc = row_layout.get(i);
-                xc.addView(button);
+
                 button.setBackground(getDrawable(R.drawable.no_button_player));
+                xc.addView(button);
                 button.setOnClickListener(this);
 
             }
@@ -91,17 +96,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+        Mbutton button = (Mbutton) view;
         if (current_status) {
-            Mbutton button = (Mbutton) view;
+
             if (checkneighbour(button)) {
+                button.setValue(currentplayer);
                 button.setbutton();
                 button.setEnabled(false);
 
                 checkAtend(button.i,button.j);
                 toggle();
 
+
                 }
+
             }
+
         }
 
   public void toggle(){
@@ -109,32 +119,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             currentplayer=player_black;
             oppositeplayer=player_white;
         }
-        else{
+        if(currentplayer==player_black){
             currentplayer=player_white;
             oppositeplayer=player_black;
         }
   }
 
     public boolean checkneighbour(Mbutton button) {
-        int xi,yi;
         for(int k=0;k<8;k++){
-            xi=button.i +x[k];
-            yi=button.j+y[k];
-            if(xi>=0 && xi<row && yi>=0 && yi<col && board[xi][yi].getValue()==oppositeplayer){
+           int xi=button.i +x[k];
+            int yi=button.j+y[k];
+            if(xi>=0 && xi<row && yi>=0 && yi<col && board[xi][yi].getValue()==oppositeplayer && board[xi][yi].getValue()!=player_no && board[xi][yi].getValue()!=currentplayer){
                 return true;
             }
         }
         return false;
     }
     public void checkAtend(int i,int j){
-        int xi,yj;
+
         for(int k=0;k<8;k++){
-            xi=i+x[k];
-            yj=j+y[k];
+            int xi=i+x[k];
+           int yj=j+y[k];
             if(xi>=0 && yj>=0 && xi<row && yj<col && board[xi][yj].getValue()==oppositeplayer ) {
                 if (recursiongotoend(xi, yj, k)) {
                     board[xi][yj].setValue(currentplayer);
                     board[xi][yj].setbutton();
+                    board[xi][yj].setEnabled(false);
 
                 }
             }

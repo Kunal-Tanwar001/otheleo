@@ -23,18 +23,18 @@ public class Mbutton extends AppCompatButton {
     }
 
     public void setbutton(){
-        if(value==MainActivity.player_white){
-            setText("●");
-            setTextColor(Color.parseColor("white"));
+        if(this.getValue()==MainActivity.player_white){
+            this.setText("●");
+           this.setTextColor(Color.parseColor("white"));
 
-            setTextSize(65);
+            this.setTextSize(65);
 
         }
-        if(value==MainActivity.player_black){
-            setText("●");
-            setTextColor(Color.parseColor("black"));
+        if(this.getValue()==MainActivity.player_black){
+            this.setText("●");
+           this.setTextColor(Color.parseColor("black"));
 
-            setTextSize(65);
+            this.setTextSize(65);
 
 
 
